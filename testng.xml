@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Amazon Automation Suite" verbose="1" parallel="false">
+    <test name="Amazon End-to-End and Regression Tests">
+        <classes>
+            <class name="tests.AmazonHomePageTest"/>
+            <class name="tests.AmazonSearchTest"/>
+            <class name="tests.AmazonCategoryTest"/>
+            <class name="tests.AmazonProductPageTest"/>
+            <class name="tests.AmazonCartTest"/>
+            <class name="tests.AmazonLanguageRegionTest"/>
+            <class name="tests.AmazonFooterLinksTest"/>
+            <class name="tests.AmazonNavigationMenuTest"/>
+        </classes>
+    </test>
+</suite>
