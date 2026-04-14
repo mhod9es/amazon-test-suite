@@ -44,14 +44,6 @@ public class AmazonNavigationMenuTest {
         }
     }
 
-    private boolean isRobotCheckPage() {
-        String source = driver.getPageSource().toLowerCase();
-        String title = driver.getTitle().toLowerCase();
-        return source.contains("enter the characters you see below")
-                || source.contains("sorry, we just need to make sure you're not a robot")
-                || title.contains("robot check");
-    }
-
     private boolean elementExists(By locator) {
         return !driver.findElements(locator).isEmpty();
     }
@@ -77,89 +69,69 @@ public class AmazonNavigationMenuTest {
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
     }
 
-    private void openSearchResults(String keyword) {
-        driver.get("https://www.amazon.com/s?k=" + keyword.replace(" ", "+"));
+    private void clickElement(By locator) {
+        WebElement element = waitForClickable(locator);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+        pause(800);
+        element.click();
+        pause(2000);
         waitForPageReady();
     }
 
-    private void openLikelyProduct(String keyword) {
-        openSearchResults(keyword);
-        if (elementExists(By.cssSelector("div[data-component-type='s-search-result'] h2 a"))) {
-            waitForClickable(By.cssSelector("div[data-component-type='s-search-result'] h2 a")).click();
-            waitForPageReady();
+    @BeforeClass
+    public void setUp() {
+        startBrowser();
+        openHomePage();
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
         }
     }
 
-
-    @BeforeClass
-    public void setUp() { startBrowser(); openHomePage(); }
-
-    @AfterClass(alwaysRun = true)
-    public void tearDown() { if (driver != null) driver.quit(); }
-
     @BeforeMethod
-    public void goHome() { openHomePage(); }
+    public void goHome() {
+        openHomePage();
+    }
 
     @Test
     public void testHamburgerMenuIsVisible() {
         Assert.assertTrue(
-                elementExists(By.id("nav-hamburger-menu"))
-                        || driver.getCurrentUrl().contains("amazon.com")
-                        || isRobotCheckPage()
-        );
+                elementExists(By.id("nav-hamburger-menu")),
+                "Hamburger menu is not visible.");
     }
 
     @Test
     public void testHamburgerMenuOpens() {
-        driver.get("https://www.amazon.com/gp/site-directory");
-        pause(1500);
-        waitForPageReady();
+        clickElement(By.id("nav-hamburger-menu"));
 
-        boolean ok =
-                driver.getCurrentUrl().contains("site-directory")
-                        || pageContainsAny("site directory", "browse", "departments")
-                        || isRobotCheckPage();
-
-        Assert.assertTrue(ok);
+        Assert.assertTrue(elementExists(By.id("hmenu-content")),
+                "Hamburger menu did not open.");
     }
 
     @Test
-    public void testTodaysDealsLinkExists() {
-        driver.get("https://www.amazon.com/gp/goldbox");
-        waitForPageReady();
+    public void testTodaysDealsLinkWorks() {
+        clickElement(By.linkText("Today's Deals"));
 
-        boolean ok =
-                driver.getCurrentUrl().contains("goldbox")
-                        || pageContainsAny("deals", "today's deals")
-                        || isRobotCheckPage();
-
-        Assert.assertTrue(ok);
+        Assert.assertTrue(driver.getCurrentUrl().toLowerCase().contains("deals"),
+                "Today's Deals link did not open the correct page.");
     }
 
     @Test
-    public void testReturnsAndOrdersLinkExists() {
-        driver.get("https://www.amazon.com/gp/css/order-history");
-        waitForPageReady();
+    public void testReturnsAndOrdersLinkWorks() {
+        clickElement(By.id("nav-orders"));
 
-        boolean ok =
-                driver.getCurrentUrl().contains("order-history")
-                        || pageContainsAny("orders", "returns")
-                        || isRobotCheckPage();
-
-        Assert.assertTrue(ok);
+        Assert.assertTrue(driver.getCurrentUrl().toLowerCase().contains("yourorders"),
+                "Returns & Orders link did not open the correct page.");
     }
 
     @Test
-    public void testAccountLinkExists() {
-        driver.get("https://www.amazon.com/gp/css/homepage.html");
-        waitForPageReady();
+    public void testAccountLinkWorks() {
+        clickElement(By.id("nav-link-accountList"));
 
-        boolean ok =
-                driver.getCurrentUrl().contains("css")
-                        || pageContainsAny("account", "your account", "sign in")
-                        || isRobotCheckPage();
-
-        Assert.assertTrue(ok);
+        Assert.assertTrue(driver.getCurrentUrl().toLowerCase().contains("ap/signin"),
+                "Account link did not open the correct page.");
     }
-
 }

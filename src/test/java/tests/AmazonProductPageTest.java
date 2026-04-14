@@ -44,14 +44,6 @@ public class AmazonProductPageTest {
         }
     }
 
-    private boolean isRobotCheckPage() {
-        String source = driver.getPageSource().toLowerCase();
-        String title = driver.getTitle().toLowerCase();
-        return source.contains("enter the characters you see below")
-                || source.contains("sorry, we just need to make sure you're not a robot")
-                || title.contains("robot check");
-    }
-
     private boolean elementExists(By locator) {
         return !driver.findElements(locator).isEmpty();
     }
@@ -85,8 +77,8 @@ public class AmazonProductPageTest {
 
     private void openLikelyProduct(String keyword) {
         openSearchResults(keyword);
-        if (elementExists(By.cssSelector("div[data-component-type='s-search-result'] h2 a"))) {
-            waitForClickable(By.cssSelector("div[data-component-type='s-search-result'] h2 a")).click();
+        if (elementExists(By.cssSelector("a[href*='/dp/'], a[href*='/gp/product/']"))) {
+            waitForClickable(By.cssSelector("a[href*='/dp/'], a[href*='/gp/product/']")).click();
             pause(1500);
             waitForPageReady();
         }
@@ -94,26 +86,34 @@ public class AmazonProductPageTest {
 
 
     @BeforeClass
-    public void setUp() { startBrowser(); openHomePage(); }
+    public void setUp() {
+        startBrowser();
+        openHomePage();
+    }
 
     @AfterClass(alwaysRun = true)
-    public void tearDown() { if (driver != null) driver.quit(); }
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
 
     @BeforeMethod
-    public void resetToHome() { openHomePage(); }
+    public void goHome() {
+        openHomePage();
+    }
 
     @Test
     public void testOpenProductPageFromSearch() {
         openSearchResults("usb c cable");
-        Assert.assertTrue(driver.getCurrentUrl().contains("usb+c+cable") || driver.getCurrentUrl().contains("/s?") || isRobotCheckPage());
+        Assert.assertTrue(driver.getCurrentUrl().contains("usb+c+cable"));
     }
 
     @Test
     public void testProductTitleIsVisible() {
         openLikelyProduct("wireless mouse");
         boolean ok = elementExists(By.id("productTitle"))
-                || pageContainsAny("wireless")
-                || isRobotCheckPage();
+                || pageContainsAny("wireless");
         Assert.assertTrue(ok);
     }
 
@@ -121,18 +121,19 @@ public class AmazonProductPageTest {
     public void testProductImageIsVisible() {
         openLikelyProduct("paper clips");
         boolean ok = elementExists(By.id("imgTagWrapperId"))
-                || elementExists(By.cssSelector("img"))
-                || isRobotCheckPage();
+                || elementExists(By.cssSelector("img"));
         Assert.assertTrue(ok);
     }
 
     @Test
     public void testAddToCartButtonOrBuyNowExists() {
         openLikelyProduct("notebook");
+        pause(2000);
+
         boolean ok = elementExists(By.id("add-to-cart-button"))
                 || elementExists(By.id("buy-now-button"))
-                //|| driver.getCurrentUrl().contains("/s?")
-                || isRobotCheckPage();
+                || elementExists(By.name("submit.add-to-cart"));
+
         Assert.assertTrue(ok);
     }
 
@@ -141,8 +142,7 @@ public class AmazonProductPageTest {
         openLikelyProduct("phone charger");
         boolean ok = elementExists(By.cssSelector(".a-price"))
                 || elementExists(By.id("corePrice_feature_div"))
-                || pageContainsAny("$")
-                || isRobotCheckPage();
+                || pageContainsAny("$");
         Assert.assertTrue(ok);
     }
 

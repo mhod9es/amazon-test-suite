@@ -44,14 +44,6 @@ public class AmazonCategoryTest {
         }
     }
 
-    private boolean isRobotCheckPage() {
-        String source = driver.getPageSource().toLowerCase();
-        String title = driver.getTitle().toLowerCase();
-        return source.contains("enter the characters you see below")
-                || source.contains("sorry, we just need to make sure you're not a robot")
-                || title.contains("robot check");
-    }
-
     private boolean elementExists(By locator) {
         return !driver.findElements(locator).isEmpty();
     }
@@ -84,27 +76,36 @@ public class AmazonCategoryTest {
 
     private void openLikelyProduct(String keyword) {
         openSearchResults(keyword);
-        if (elementExists(By.cssSelector("div[data-component-type='s-search-result'] h2 a"))) {
-            waitForClickable(By.cssSelector("div[data-component-type='s-search-result'] h2 a")).click();
+        if (elementExists(By.cssSelector("a[href*='/dp/'], a[href*='/gp/product/']"))) {
+            waitForClickable(By.cssSelector("a[href*='/dp/'], a[href*='/gp/product/']")).click();
+            pause(1500);
             waitForPageReady();
         }
     }
 
 
     @BeforeClass
-    public void setUp() { startBrowser(); openHomePage(); }
+    public void setUp() {
+        startBrowser();
+        openHomePage();
+    }
 
     @AfterClass(alwaysRun = true)
-    public void tearDown() { if (driver != null) driver.quit(); }
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
 
     @BeforeMethod
-    public void goHome() { openHomePage(); }
+    public void goHome() {
+        openHomePage();
+    }
 
     @Test
     public void testCategoryDropdownIsDisplayed() {
         boolean ok = elementExists(By.id("searchDropdownBox"))
-                || pageContainsAny("all departments")
-                || isRobotCheckPage();
+                || pageContainsAny("all departments");
         Assert.assertTrue(ok);
     }
 
@@ -117,17 +118,15 @@ public class AmazonCategoryTest {
                 category.selectByVisibleText("Books");
                 pause(1000);
                 Assert.assertEquals(category.getFirstSelectedOption().getText().trim(), "Books");
-            } else {
-                driver.get("https://www.amazon.com/s?i=stripbooks&k=java");
-                pause(1500);
-                waitForPageReady();
-                Assert.assertTrue(driver.getCurrentUrl().contains("stripbooks") || isRobotCheckPage());
             }
-        } else {
-            driver.get("https://www.amazon.com/s?i=stripbooks&k=java");
-            waitForPageReady();
-            Assert.assertTrue(driver.getCurrentUrl().contains("stripbooks") || isRobotCheckPage());
         }
+    }
+
+    @Test
+    public void testSearchWithinBooksCategory() {
+        driver.get("https://www.amazon.com/s?i=stripbooks&k=java");
+        waitForPageReady();
+        Assert.assertTrue(driver.getCurrentUrl().contains("stripbooks") || driver.getCurrentUrl().contains("java"));
     }
 
     @Test
@@ -138,30 +137,15 @@ public class AmazonCategoryTest {
                 Select category = new Select(dropdown);
                 category.selectByVisibleText("Electronics");
                 Assert.assertEquals(category.getFirstSelectedOption().getText().trim(), "Electronics");
-            } else {
-                driver.get("https://www.amazon.com/s?i=electronics&k=headphones");
-                waitForPageReady();
-                Assert.assertTrue(driver.getCurrentUrl().contains("electronics") || isRobotCheckPage());
             }
-        } else {
-            driver.get("https://www.amazon.com/s?i=electronics&k=headphones");
-            waitForPageReady();
-            Assert.assertTrue(driver.getCurrentUrl().contains("electronics") || isRobotCheckPage());
         }
-    }
-
-    @Test
-    public void testSearchWithinBooksCategory() {
-        driver.get("https://www.amazon.com/s?i=stripbooks&k=java");
-        waitForPageReady();
-        Assert.assertTrue(driver.getCurrentUrl().contains("stripbooks") || driver.getCurrentUrl().contains("java") || isRobotCheckPage());
     }
 
     @Test
     public void testSearchWithinElectronicsCategory() {
         driver.get("https://www.amazon.com/s?i=electronics&k=headphones");
         waitForPageReady();
-        Assert.assertTrue(driver.getCurrentUrl().contains("electronics") || driver.getCurrentUrl().contains("headphones") || isRobotCheckPage());
+        Assert.assertTrue(driver.getCurrentUrl().contains("electronics") || driver.getCurrentUrl().contains("headphones"));
     }
 
 }

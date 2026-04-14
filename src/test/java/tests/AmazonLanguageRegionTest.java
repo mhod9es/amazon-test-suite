@@ -44,14 +44,6 @@ public class AmazonLanguageRegionTest {
         }
     }
 
-    private boolean isRobotCheckPage() {
-        String source = driver.getPageSource().toLowerCase();
-        String title = driver.getTitle().toLowerCase();
-        return source.contains("enter the characters you see below")
-                || source.contains("sorry, we just need to make sure you're not a robot")
-                || title.contains("robot check");
-    }
-
     private boolean elementExists(By locator) {
         return !driver.findElements(locator).isEmpty();
     }
@@ -84,27 +76,36 @@ public class AmazonLanguageRegionTest {
 
     private void openLikelyProduct(String keyword) {
         openSearchResults(keyword);
-        if (elementExists(By.cssSelector("div[data-component-type='s-search-result'] h2 a"))) {
-            waitForClickable(By.cssSelector("div[data-component-type='s-search-result'] h2 a")).click();
+        if (elementExists(By.cssSelector("a[href*='/dp/'], a[href*='/gp/product/']"))) {
+            waitForClickable(By.cssSelector("a[href*='/dp/'], a[href*='/gp/product/']")).click();
+            pause(1500);
             waitForPageReady();
         }
     }
 
 
     @BeforeClass
-    public void setUp() { startBrowser(); openHomePage(); }
+    public void setUp() {
+        startBrowser();
+        openHomePage();
+    }
 
     @AfterClass(alwaysRun = true)
-    public void tearDown() { if (driver != null) driver.quit(); }
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
 
     @BeforeMethod
-    public void goHome() { openHomePage(); }
+    public void goHome() {
+        openHomePage();
+    }
 
     @Test
     public void testLanguageIconOrMenuExists() {
         boolean ok = elementExists(By.id("icp-nav-flyout"))
-                || pageContainsAny("language", "customer preferences")
-                || isRobotCheckPage();
+                || pageContainsAny("language", "customer preferences");
         Assert.assertTrue(ok);
     }
 
@@ -113,15 +114,13 @@ public class AmazonLanguageRegionTest {
         driver.get("https://www.amazon.com/customer-preferences/edit?ie=UTF8&preferencesReturnUrl=%2F");
         waitForPageReady();
         Assert.assertTrue(driver.getCurrentUrl().contains("customer-preferences")
-                || pageContainsAny("preferences")
-                || isRobotCheckPage());
+                || pageContainsAny("preferences"));
     }
 
     @Test
     public void testHomePageShowsDeliveryLocationArea() {
         Assert.assertTrue(elementExists(By.id("nav-global-location-popover-link"))
-                || pageContainsAny("deliver to", "location")
-                || isRobotCheckPage());
+                || pageContainsAny("deliver to", "location"));
     }
 
     @Test
@@ -131,11 +130,7 @@ public class AmazonLanguageRegionTest {
             pause(1500);
             waitForPageReady();
         }
-        boolean ok = pageContainsAny("deliver to", "location")
-                || elementExists(By.id("GLUXZipUpdateInput"))
-                || elementExists(By.id("GLUXCountryList"))
-                || isRobotCheckPage();
-        Assert.assertTrue(ok);
+        Assert.assertTrue(pageContainsAny("deliver to", "location"));
     }
 
     @Test
@@ -143,7 +138,7 @@ public class AmazonLanguageRegionTest {
         driver.get("https://www.amazon.com/customer-preferences/edit?ie=UTF8&preferencesReturnUrl=%2F");
         pause(1500);
         waitForPageReady();
-        Assert.assertTrue(pageContainsAny("preferences", "language") || isRobotCheckPage());
+        Assert.assertTrue(pageContainsAny("preferences", "language"));
     }
 
 }

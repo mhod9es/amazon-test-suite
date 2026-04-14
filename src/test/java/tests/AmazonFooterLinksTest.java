@@ -44,14 +44,6 @@ public class AmazonFooterLinksTest {
         }
     }
 
-    private boolean isRobotCheckPage() {
-        String source = driver.getPageSource().toLowerCase();
-        String title = driver.getTitle().toLowerCase();
-        return source.contains("enter the characters you see below")
-                || source.contains("sorry, we just need to make sure you're not a robot")
-                || title.contains("robot check");
-    }
-
     private boolean elementExists(By locator) {
         return !driver.findElements(locator).isEmpty();
     }
@@ -88,49 +80,53 @@ public class AmazonFooterLinksTest {
     }
 
     @BeforeClass
-    public void setUp() { startBrowser(); openHomePage(); }
+    public void setUp() {
+        startBrowser();
+        openHomePage();
+    }
 
     @AfterClass(alwaysRun = true)
-    public void tearDown() { if (driver != null) driver.quit(); }
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
 
     @BeforeMethod
-    public void goHome() { openHomePage(); scrollToFooter(); }
+    public void goHome() {
+        openHomePage();
+    }
 
     @Test
     public void testBackToTopLinkExists() {
         boolean ok = pageContainsAny("back to top")
-                || elementExists(By.id("navBackToTop"))
-                || isRobotCheckPage();
+                || elementExists(By.id("navBackToTop"));
         Assert.assertTrue(ok);
     }
 
     @Test
     public void testConditionsOfUseLinkExists() {
-        boolean ok = pageContainsAny("conditions of use", "conditions")
-                || isRobotCheckPage();
+        boolean ok = pageContainsAny("conditions of use", "conditions");
         Assert.assertTrue(ok);
     }
 
     @Test
     public void testPrivacyNoticeLinkExists() {
-        boolean ok = pageContainsAny("privacy notice", "privacy")
-                || isRobotCheckPage();
+        boolean ok = pageContainsAny("privacy notice", "privacy");
         Assert.assertTrue(ok);
     }
 
     @Test
     public void testHelpLinkExists() {
         boolean ok = pageContainsAny("help")
-                || elementExists(By.partialLinkText("Help"))
-                || isRobotCheckPage();
+                || elementExists(By.partialLinkText("Help"));
         Assert.assertTrue(ok);
     }
 
     @Test
     public void testFooterAreaIsPresent() {
         boolean ok = elementExists(By.id("navFooter"))
-                || pageContainsAny("amazon music", "amazon ads", "footer")
-                || isRobotCheckPage();
+                || pageContainsAny("amazon music", "amazon ads", "footer");
         Assert.assertTrue(ok);
     }
 
